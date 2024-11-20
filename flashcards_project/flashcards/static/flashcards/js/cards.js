@@ -1,10 +1,3 @@
-const cards = [
-    { word: "tree", translation: "дерево", transcription: "[tri:]", topic: "Природа" },
-    { word: "sun", translation: "солнце", transcription: "[sʌn]", topic: "Природа" },
-    { word: "job", translation: "работа", transcription: "[dʒɒb]", topic: "Работа" },
-    { word: "office", translation: "офис", transcription: "[ˈɒfɪs]", topic: "Работа" }
-];
-
 let currentIndex = 0;
 const selectedTopic = localStorage.getItem('selectedTopic');
 let filteredCards = [];
