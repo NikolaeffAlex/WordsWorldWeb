@@ -5,4 +5,5 @@ urlpatterns = [
     path('', views.index, name='index'),
     path('topics/', views.topics, name='topics'),
     path('cards/', views.cards, name='cards'),
+    path('api/cards/', views.CardListAPI.as_view(), name='card-list'),  # Добавляем API маршрут
 ]

@@ -8,7 +8,7 @@ class CardListAPI(APIView):
     def get(self, request):
         topic = request.query_params.get('topic')  # Получаем тему из параметров запроса
         if topic:
-            cards = Card.objects.filter(topic=topic)
+            cards = Card.objects.filter(topic__iexact=topic)
         else:
             cards = Card.objects.all()
         serializer = CardSerializer(cards, many=True)
