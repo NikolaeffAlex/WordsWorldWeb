@@ -1,0 +1,30 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тренировка</title>
+    <link rel="stylesheet" href="{% static 'flashcards/css/style.css' %}">
+</head>
+
+<body>
+    <div class="container training-container">
+        <h1>Тренировка</h1>
+        <div id="card-container">
+            <!-- Отображаем карточки -->
+            {% for card in cards %}
+            <div class="flashcard training-card">
+                <p class="flashcard-word">{{ card.word }}</p>
+                <p class="flashcard-transcription">{{ card.transcription }}</p>
+                <p class="flashcard-translation">{{ card.translation }}</p>
+            </div>
+            {% endfor %}
+        </div>
+        <button id="next-button" class="nav-button">Запомнил</button>
+    </div>
+    <script src="{% static 'flashcards/js/training.js' %}"></script>
+</body>
+
+</html>

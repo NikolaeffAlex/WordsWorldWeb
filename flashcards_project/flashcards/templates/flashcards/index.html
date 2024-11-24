@@ -5,14 +5,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flashcards - Main Page</title>
+    <title>WordsWorldWeb</title>
     <link rel="stylesheet" href="{% static 'flashcards/css/style.css' %}">
 </head>
 
 <body>
-    <div class="container">
-        <h1>Добро пожаловать в WordsWorldWeb</h1>
-        <button onclick="window.location.href='{% url 'topics' %}'">Начать учить слова</button>
+    <div class="hero-container">
+        <h1 class="hero-title">Добро пожаловать в WordsWorldWeb!</h1>
+        <p class="hero-subtitle">Начните изучать английские слова быстро и эффективно.</p>
+        <button class="start-button" onclick="window.location.href='{% url 'topics' %}'">Начать учить слова</button>
     </div>
 </body>
 

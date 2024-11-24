@@ -57,7 +57,7 @@ ROOT_URLCONF = 'flashcards_project.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -72,7 +72,7 @@ TEMPLATES = [
 
 # Настройки для статических файлов
 STATIC_URL = '/static/'
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'flashcards/static')]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 # Настройки для шаблонов
 TEMPLATES[0]['DIRS'] = [os.path.join(BASE_DIR, 'flashcards/templates')]

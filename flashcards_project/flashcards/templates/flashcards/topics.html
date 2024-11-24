@@ -5,20 +5,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flashcards - Choose a Topic</title>
+    <title>Выбор тем</title>
     <link rel="stylesheet" href="{% static 'flashcards/css/style.css' %}">
 </head>
 
 <body>
-    <div class="container">
-        <h1>Выберите тему</h1>
-        <button onclick="selectTopic('Природа')">Природа</button>
-        <button onclick="selectTopic('Работа')">Работа</button>
-        <button onclick="selectTopic('Спорт')">Спорт</button>
-        <button onclick="selectTopic('Музыка')">Музыка</button>
-        <button onclick="window.location.href='{% url 'index' %}'">Назад</button>
+    <div class="topic-container">
+    <div class="topics-grid">
+        {% for topic in topics %}
+        <label class="topic-item">
+            <input type="checkbox" value="{{ topic.name }}" id="topic_{{ forloop.counter }}">
+            {{ topic.name }}
+        </label>
+        {% endfor %}
     </div>
-    <script src="{% static 'flashcards/js/topics.js' %}"></script>
+    <button id="start-training">Начать тренировку</button>
+</div>
+<script src="{% static 'flashcards/js/topics.js' %}"></script>
 </body>
 
 </html>

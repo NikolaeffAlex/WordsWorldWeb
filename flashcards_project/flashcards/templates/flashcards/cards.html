@@ -5,24 +5,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Flashcards - Cards</title>
+    <title>Карточки со словами</title>
     <link rel="stylesheet" href="{% static 'flashcards/css/style.css' %}">
 </head>
 
 <body>
-    <div class="container">
-        <h1>Карточки по теме: {{ topic }}</h1>
-        <button onclick="window.location.href='{% url 'topics' %}'">Назад к темам</button>
+    <div class="cards-container">
+        <h1 class="page-title">Карточки со словами</h1>
+        <button class="back-button" onclick="window.location.href='{% url 'topics' %}'">Назад к темам</button>
 
-        <div id="card" class="card">
-            <p id="word">Слово</p>
-            <p id="transcription">Транскрипция</p>
-            <p id="translation">Перевод</p>
+        <div id="card" class="flashcard">
+            <p id="word" class="flashcard-word">Слово</p>
+            <p id="transcription" class="flashcard-transcription">Транскрипция</p>
+            <p id="translation" class="flashcard-translation">Перевод</p>
         </div>
 
         <div class="navigation-buttons">
-            <button onclick="prevCard()">Назад</button>
-            <button onclick="nextCard()">Вперед</button>
+            <button class="nav-button" onclick="prevCard()">Назад</button>
+            <button class="nav-button" onclick="nextCard()">Вперёд</button>
         </div>
     </div>
     <script src="{% static 'flashcards/js/cards.js' %}"></script>
