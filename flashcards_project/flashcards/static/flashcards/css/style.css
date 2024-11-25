@@ -264,3 +264,34 @@ button:hover {
 .flashcard .nav-button {
     margin-top: 15px;
 }
+
+/* Стиль для поля ввода */
+.input-field {
+    width: 80%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 2px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+/* При правильном ответе */
+.input-field.correct {
+    border-color: green;
+    background-color: #d4edda;
+}
+
+/* При неправильном ответе */
+.input-field.incorrect {
+    border-color: red;
+    background-color: #f8d7da;
+}
+
+/* Для блока с обратной связью */
+.feedback {
+    font-size: 16px;
+    margin-top: 10px;
+    font-weight: bold;
+}

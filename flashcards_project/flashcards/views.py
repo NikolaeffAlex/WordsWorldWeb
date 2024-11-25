@@ -5,23 +5,17 @@ from .serializers import CardSerializer
 from django.shortcuts import render
 from urllib.parse import unquote
 import random
+import json
 
 from urllib.parse import unquote
 
 def training(request):
     # Получаем список выбранных тем из параметров запроса
     selected_topics = request.GET.get('topics', '')  # Получаем строку с темами
-    selected_topics = unquote(selected_topics)  # Декодируем URL
+    selected_topics = unquote(selected_topics).split(',')  # Разделяем темы
 
-    if selected_topics:  # Если строка с темами не пуста
-        # Разделяем строку на отдельные темы
-        selected_topics_list = [topic.strip() for topic in selected_topics.split(',')]
-    else:
-        selected_topics_list = []  # Если тем нет, возвращаем пустой список
-
-    # Фильтруем карточки по выбранным темам
-    if selected_topics_list:
-        cards = Card.objects.filter(topic__name__in=selected_topics_list)
+    if selected_topics:
+        cards = Card.objects.filter(topic__name__in=selected_topics)
     else:
         cards = Card.objects.all()  # Если темы не выбраны, возвращаем все карточки
 
@@ -30,8 +24,21 @@ def training(request):
     random.shuffle(cards)  # Перемешиваем карточки
     cards = cards[:10]  # Ограничиваем тренировку 10 карточками
 
+    # Разделяем карточки по типам
+    info_cards = [{'type': 'info', 'word': card.word, 'transcription': card.transcription, 'translation': card.translation} for card in cards]
+    input_cards = [{'type': 'input', 'translation': card.translation, 'word': card.word} for card in cards]
+
+    # Объединяем, чередуя типы, чтобы избежать последовательности одинаковых типов
+    training_data = []
+    while info_cards or input_cards:
+        if random.choice([True, False]) and input_cards:  # Сначала добавляем задание, если есть
+            training_data.append(input_cards.pop())
+        elif info_cards:  # Потом добавляем информационную карточку, если есть
+            training_data.append(info_cards.pop())
+
     # Передаем карточки в шаблон
-    return render(request, 'flashcards/training.html', {'cards': cards})
+    return render(request, 'flashcards/training.html', {'cards': json.dumps(training_data)})
+
 
 
 
