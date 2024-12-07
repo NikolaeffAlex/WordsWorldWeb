@@ -2,9 +2,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const cards = JSON.parse(document.getElementById("card-data").textContent); // Получаем карточки
     const cardContainer = document.getElementById("card-container");
     const nextButton = document.getElementById("next-button");
-    console.log(cards);
 
     let currentCardIndex = 0;
+    let wordsSeen = new Set();  // Множество для хранения уже встреченных слов
+    let lastCardWasTask = false;  // Флаг для отслеживания, было ли задание перед карточкой с информацией
 
     // Функция для отображения информационной карточки
     const renderInfoCard = (card) => {
@@ -15,7 +16,15 @@ document.addEventListener("DOMContentLoaded", () => {
                 <p class="flashcard-translation">${card.translation}</p>
             </div>
         `;
-        nextButton.style.display = "block";
+
+        // Если слово встречается впервые в тренировке
+        if (!wordsSeen.has(card.word)) {
+            nextButton.textContent = "Запомнил";  // Если слово встречается впервые
+        } else {
+            nextButton.textContent = "Помню";  // Если слово уже встречалось
+        }
+
+        nextButton.style.display = "block";  // Показываем кнопку
     };
 
     // Функция для отображения карточки с вводом слова
@@ -46,13 +55,76 @@ document.addEventListener("DOMContentLoaded", () => {
                 feedback.textContent = `Неправильно!`;
                 feedback.style.color = "red";
             }
-            nextButton.style.display = "block"; // Показываем кнопку "Далее"
+
+            // После выполнения задания, показываем карточку с информацией через 1 секунду
+            setTimeout(() => {
+                renderInfoCard(card);  // Показываем карточку с информацией
+                wordsSeen.add(card.word);  // Добавляем слово в множество встреченных
+                lastCardWasTask = true;  // Помечаем, что было задание
+            }, 1000); // Задержка 1 секунда
         });
 
         document.getElementById("reveal-button").addEventListener("click", () => {
             feedback.textContent = `Правильное слово: ${card.word}`;
             feedback.style.color = "blue";
-            nextButton.style.display = "block"; // Показываем кнопку "Далее"
+
+            // После выполнения задания, показываем карточку с информацией через 1 секунду
+            setTimeout(() => {
+                renderInfoCard(card);  // Показываем карточку с информацией
+                wordsSeen.add(card.word);  // Добавляем слово в множество встреченных
+                lastCardWasTask = true;  // Помечаем, что было задание
+            }, 1000); // Задержка 1 секунда
+        });
+    };
+
+    // Функция для отображения карточки с выбором правильного перевода
+    const renderChoiceCard = (card, allCards) => {
+        // Получаем случайные переводы для неверных вариантов
+        const otherTranslations = allCards
+            .filter((c) => c.word !== card.word) // Исключаем перевод текущего слова
+            .map((c) => c.translation);
+
+        // Перемешиваем переводы, чтобы случайные варианты не повторялись
+        const incorrectOptions = shuffle(otherTranslations).slice(0, 2); // Два случайных перевода
+        const options = [card.translation, ...incorrectOptions]; // Объединяем правильный вариант с двумя неправильными
+
+        // Перемешиваем все варианты, чтобы правильный вариант не был всегда первым
+        shuffle(options);
+
+        cardContainer.innerHTML = `
+            <div class="flashcard">
+                <p class="flashcard-word">${card.word}</p>
+                <p class="flashcard-translation">Выберите правильный перевод:</p>
+                <div id="options">
+                    <button class="option-button" data-correct="${card.translation}">${options[0]}</button>
+                    <button class="option-button" data-correct="${card.translation}">${options[1]}</button>
+                    <button class="option-button" data-correct="${card.translation}">${options[2]}</button>
+                </div>
+            </div>
+        `;
+
+        const optionButtons = document.querySelectorAll(".option-button");
+
+        optionButtons.forEach((button) => {
+            button.addEventListener("click", () => {
+                const correctButton = Array.from(optionButtons).find(
+                    (btn) => btn.textContent === card.translation
+                );
+
+                if (button.textContent === card.translation) {
+                    button.style.backgroundColor = "green"; // Правильный ответ
+                } else {
+                    button.style.backgroundColor = "red"; // Неправильный ответ
+                    correctButton.style.backgroundColor = "green"; // Подсвечиваем правильный ответ
+                }
+
+                // После выполнения задания, показываем карточку с информацией через 1 секунду
+                setTimeout(() => {
+                    renderInfoCard(card);  // Показываем карточку с информацией
+                    wordsSeen.add(card.word);  // Добавляем слово в множество встреченных
+                    lastCardWasTask = true;  // Помечаем, что было задание
+                }, 1000); // Задержка 1 секунда
+            });
         });
     };
 
@@ -60,10 +132,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const showCard = (index) => {
         if (index < cards.length) {
             const card = cards[index];
+
             if (card.type === "info") {
-                renderInfoCard(card); // Информационная карточка
+                if (lastCardWasTask) {
+                    renderInfoCard(card);  // Показываем карточку с информацией
+                    lastCardWasTask = false;  // После карточки с информацией, задание должно быть следующей карточкой
+                } else {
+                    renderInfoCard(card);  // Показываем карточку с информацией
+                    lastCardWasTask = false;  // Карточка с информацией без задания
+                }
             } else if (card.type === "input") {
-                renderInputCard(card); // Карточка с вводом слова
+                renderInputCard(card);  // Карточка с вводом слова
+            } else if (card.type === "choice") {
+                renderChoiceCard(card, cards);  // Карточка с выбором перевода
+                lastCardWasTask = true;  // Помечаем, что было задание
             }
         } else {
             cardContainer.innerHTML = `
@@ -84,3 +166,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     showCard(currentCardIndex); // Отображаем первую карточку
 });
+
+// Функция для случайного перемешивания элементов
+function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]]; // Перестановка элементов
+    }
+    return array;
+}

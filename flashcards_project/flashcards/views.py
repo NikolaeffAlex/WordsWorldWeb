@@ -27,17 +27,24 @@ def training(request):
     # Разделяем карточки по типам
     info_cards = [{'type': 'info', 'word': card.word, 'transcription': card.transcription, 'translation': card.translation} for card in cards]
     input_cards = [{'type': 'input', 'translation': card.translation, 'word': card.word} for card in cards]
+    choice_cards = [{'type': 'choice', 'word': card.word, 'translation': card.translation} for card in cards]
 
-    # Объединяем, чередуя типы, чтобы избежать последовательности одинаковых типов
+    # Объединяем карточки с разными типами
     training_data = []
-    while info_cards or input_cards:
-        if random.choice([True, False]) and input_cards:  # Сначала добавляем задание, если есть
-            training_data.append(input_cards.pop())
-        elif info_cards:  # Потом добавляем информационную карточку, если есть
+    while info_cards or input_cards or choice_cards:
+        card_type = random.choice(['info', 'input', 'choice'])
+
+        if card_type == 'info' and info_cards:
             training_data.append(info_cards.pop())
+        elif card_type == 'input' and input_cards:
+            training_data.append(input_cards.pop())
+        elif card_type == 'choice' and choice_cards:
+            training_data.append(choice_cards.pop())
 
     # Передаем карточки в шаблон
     return render(request, 'flashcards/training.html', {'cards': json.dumps(training_data)})
+
+
 
 
 
