@@ -2,10 +2,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .models import Card, Topic
 from .serializers import CardSerializer
-from django.shortcuts import render
 from urllib.parse import unquote
 import random
 import json
+from django.shortcuts import render, redirect
+from .forms import CustomUserCreationForm
+from .models import UserProgress, Card
 
 from urllib.parse import unquote
 
@@ -45,10 +47,6 @@ def training(request):
     return render(request, 'flashcards/training.html', {'cards': json.dumps(training_data)})
 
 
-
-
-
-
 def topics(request):
     topics = Topic.objects.all()  # Получаем все темы из базы
     return render(request, 'flashcards/topics.html', {'topics': topics})
@@ -71,3 +69,26 @@ def index(request):
 def cards(request):
     topic = request.GET.get('topic', None)
     return render(request, 'flashcards/cards.html', {'topic': topic})
+
+def register(request):
+    if request.method == 'POST':
+        form = CustomUserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')  # перенаправляем на страницу входа
+    else:
+        form = CustomUserCreationForm()
+    return render(request, 'registration/register.html', {'form': form})
+
+def progress_view(request):
+    user = request.user
+    # Получаем или создаем объект прогресса для текущего пользователя
+    progress, created = UserProgress.objects.get_or_create(user=user)
+    return render(request, 'flashcards/progress.html', {'progress': progress})
+
+def update_user_progress(user, correct_answers, total_answers, completed_cards):
+    progress, created = UserProgress.objects.get_or_create(user=user)
+    progress.correct_answers += correct_answers
+    progress.total_answers += total_answers
+    progress.completed_cards.add(*completed_cards)
+    progress.save()

@@ -13,7 +13,18 @@
     <div class="hero-container">
         <h1 class="hero-title">Добро пожаловать в WordsWorldWeb!</h1>
         <p class="hero-subtitle">Начните изучать английские слова быстро и эффективно.</p>
+
         <button class="start-button" onclick="window.location.href='{% url 'topics' %}'">Начать учить слова</button>
+
+        <div class="auth-buttons">
+            {% if user.is_authenticated %}
+                <button class="auth-button" onclick="window.location.href='{% url 'progress' %}'">Мой прогресс</button>
+                <button class="auth-button" onclick="window.location.href='{% url 'logout' %}'">Выйти</button>
+            {% else %}
+                <button class="auth-button" onclick="window.location.href='{% url 'login' %}'">Войти</button>
+                <button class="auth-button" onclick="window.location.href='{% url 'register' %}'">Зарегистрироваться</button>
+            {% endif %}
+        </div>
     </div>
 </body>
 
