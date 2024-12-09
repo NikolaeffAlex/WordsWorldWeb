@@ -3,14 +3,15 @@ from rest_framework.response import Response
 from .models import Card, Topic
 from .serializers import CardSerializer
 from urllib.parse import unquote
+from django.contrib.auth.decorators import login_required
 import random
 import json
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from .forms import CustomUserCreationForm
 from .models import UserProgress, Card
 
-from urllib.parse import unquote
-
+@login_required
 def training(request):
     # Получаем список выбранных тем из параметров запроса
     selected_topics = request.GET.get('topics', '')  # Получаем строку с темами
@@ -26,10 +27,10 @@ def training(request):
     random.shuffle(cards)  # Перемешиваем карточки
     cards = cards[:10]  # Ограничиваем тренировку 10 карточками
 
-    # Разделяем карточки по типам
-    info_cards = [{'type': 'info', 'word': card.word, 'transcription': card.transcription, 'translation': card.translation} for card in cards]
-    input_cards = [{'type': 'input', 'translation': card.translation, 'word': card.word} for card in cards]
-    choice_cards = [{'type': 'choice', 'word': card.word, 'translation': card.translation} for card in cards]
+    # Разделяем карточки по типам, добавляем id
+    info_cards = [{'id': card.id, 'type': 'info', 'word': card.word, 'transcription': card.transcription, 'translation': card.translation} for card in cards]
+    input_cards = [{'id': card.id, 'type': 'input', 'translation': card.translation, 'word': card.word} for card in cards]
+    choice_cards = [{'id': card.id, 'type': 'choice', 'word': card.word, 'translation': card.translation} for card in cards]
 
     # Объединяем карточки с разными типами
     training_data = []
@@ -45,6 +46,7 @@ def training(request):
 
     # Передаем карточки в шаблон
     return render(request, 'flashcards/training.html', {'cards': json.dumps(training_data)})
+
 
 
 def topics(request):
@@ -80,15 +82,39 @@ def register(request):
         form = CustomUserCreationForm()
     return render(request, 'registration/register.html', {'form': form})
 
+@login_required
 def progress_view(request):
-    user = request.user
-    # Получаем или создаем объект прогресса для текущего пользователя
-    progress, created = UserProgress.objects.get_or_create(user=user)
+    progress, created = UserProgress.objects.get_or_create(user=request.user)
+    print(progress.correct_answers, progress.total_answers, progress.accuracy)  # Debugging
     return render(request, 'flashcards/progress.html', {'progress': progress})
 
-def update_user_progress(user, correct_answers, total_answers, completed_cards):
-    progress, created = UserProgress.objects.get_or_create(user=user)
-    progress.correct_answers += correct_answers
-    progress.total_answers += total_answers
-    progress.completed_cards.add(*completed_cards)
-    progress.save()
+
+@login_required
+def update_progress(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            card_id = data.get('card_id')
+            correct = data.get('correct')
+
+            # Отладочный вывод
+            print(f"Received card_id: {card_id}, correct: {correct}")
+
+            card = Card.objects.get(id=card_id)
+            progress, created = UserProgress.objects.get_or_create(user=request.user)
+
+            if correct:
+                progress.correct_answers += 1
+            progress.total_answers += 1
+            progress.completed_cards.add(card)
+            progress.save()
+
+            # Отладочный вывод
+            print(f"Updated progress: {progress.correct_answers}/{progress.total_answers}")
+
+            return JsonResponse({'status': 'success', 'progress': progress.accuracy})
+        except Exception as e:
+            print(f"Error: {str(e)}")
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)

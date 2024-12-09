@@ -1,4 +1,5 @@
 {% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -10,6 +11,10 @@
 </head>
 
 <body>
+    <form id="csrf-form" style="display: none;">
+        {% csrf_token %}
+    </form>
+
     <div class="container training-container">
         <h1>Тренировка</h1>
         <div id="card-container"></div>
@@ -17,8 +22,84 @@
         <script id="card-data" type="application/json">
             {{ cards|safe }}
         </script>
+        <script>
+            console.log(JSON.parse(document.getElementById("card-data").textContent));  // Посмотрим, что в переменной cards
+        </script>
     </div>
+
     <script src="{% static 'flashcards/js/training.js' %}"></script>
+    <script>
+        // Получаем данные карточек из шаблона
+        const cardsData = JSON.parse(document.getElementById('card-data').textContent);
+
+        let currentCardIndex = 0;
+        let correctAnswers = 0;
+
+        // Функция для отображения текущей карточки
+        function displayCard() {
+            const card = cardsData[currentCardIndex];
+            const cardContainer = document.getElementById('card-container');
+            cardContainer.innerHTML = `
+                <div class="flashcard">
+                    <p id="card-word">${card.word}</p>
+                    <p id="card-transcription">${card.transcription}</p>
+                    <p id="card-translation">${card.translation}</p>
+                    <button id="correct-button" class="answer-button">Правильно</button>
+                    <button id="incorrect-button" class="answer-button">Неправильно</button>
+                </div>
+            `;
+
+            // Скрываем кнопку "Далее"
+            document.getElementById('next-button').style.display = 'none';
+
+            // Устанавливаем обработчики для кнопок
+            document.getElementById('correct-button').addEventListener('click', function() {
+                sendProgress(card.id, true);  // Отправляем правильный ответ
+                correctAnswers++;
+            });
+            document.getElementById('incorrect-button').addEventListener('click', function() {
+                sendProgress(card.id, false);  // Отправляем неправильный ответ
+            });
+        }
+
+        // Функция для отправки прогресса на сервер
+        function sendProgress(cardId, correct) {
+            fetch('/update_progress/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'  // Токен CSRF
+                },
+                body: JSON.stringify({
+                    card_id: cardId,
+                    correct: correct
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log(data);  // Обрабатываем ответ от сервера, можно обновить интерфейс
+            });
+        }
+
+        // Функция для перехода к следующей карточке
+        function nextCard() {
+            currentCardIndex++;
+            if (currentCardIndex < cardsData.length) {
+                displayCard();
+                document.getElementById('next-button').style.display = 'none';  // Скрываем кнопку "Далее"
+            } else {
+                // Завершаем тренировку или выводим сообщение
+                document.getElementById('card-container').innerHTML = '<h2>Тренировка завершена!</h2>';
+                document.getElementById('next-button').style.display = 'none';  // Скрываем кнопку "Далее"
+            }
+        }
+
+        // Обработчик для кнопки "Далее"
+        document.getElementById('next-button').addEventListener('click', nextCard);
+
+        // Инициализируем первую карточку
+        displayCard();
+    </script>
 </body>
 
 </html>

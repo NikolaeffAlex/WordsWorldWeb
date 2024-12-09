@@ -19,7 +19,10 @@
         <div class="auth-buttons">
             {% if user.is_authenticated %}
                 <button class="auth-button" onclick="window.location.href='{% url 'progress' %}'">Мой прогресс</button>
-                <button class="auth-button" onclick="window.location.href='{% url 'logout' %}'">Выйти</button>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="auth-button">Выйти</button>
+                </form>
             {% else %}
                 <button class="auth-button" onclick="window.location.href='{% url 'login' %}'">Войти</button>
                 <button class="auth-button" onclick="window.location.href='{% url 'register' %}'">Зарегистрироваться</button>

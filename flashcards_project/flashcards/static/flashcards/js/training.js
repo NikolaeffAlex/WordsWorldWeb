@@ -7,6 +7,37 @@ document.addEventListener("DOMContentLoaded", () => {
     let wordsSeen = new Set();  // Множество для хранения уже встреченных слов
     let lastCardWasTask = false;  // Флаг для отслеживания, было ли задание перед карточкой с информацией
 
+    // Функция для отправки прогресса на сервер
+    function sendProgress(cardId, correct) {
+        console.log("sendProgress вызвана с данными:", cardId, correct);
+        const csrfToken = document.querySelector('[name="csrfmiddlewaretoken"]').value;
+        console.log('CSRF Token:', csrfToken);// Получаем CSRF токен
+
+        fetch('/update_progress/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken  // CSRF токен для POST-запросов
+            },
+            body: JSON.stringify({
+                card_id: cardId,
+                correct: correct
+            })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    console.log('Progress updated:', data);
+                    // Можно обновить интерфейс, например, показать актуальную точность
+                } else {
+                    console.error('Error updating progress:', data.message);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }
+
     // Функция для отображения информационной карточки
     const renderInfoCard = (card) => {
         cardContainer.innerHTML = `
@@ -44,7 +75,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.getElementById("check-button").addEventListener("click", () => {
             const userInput = inputField.value.trim().toLowerCase();
-            if (userInput === card.word.toLowerCase()) {
+            const isCorrect = userInput === card.word.toLowerCase();
+
+            if (isCorrect) {
                 inputField.style.borderColor = "green";
                 inputField.style.backgroundColor = "#d4edda";
                 feedback.textContent = "Правильно!";
@@ -55,6 +88,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 feedback.textContent = `Неправильно!`;
                 feedback.style.color = "red";
             }
+
+            // Отправляем прогресс на сервер
+            sendProgress(card.id, isCorrect);
 
             // После выполнения задания, показываем карточку с информацией через 1 секунду
             setTimeout(() => {
@@ -67,6 +103,11 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("reveal-button").addEventListener("click", () => {
             feedback.textContent = `Правильное слово: ${card.word}`;
             feedback.style.color = "blue";
+
+            console.log("sendProgress вызвана:", card.id, isCorrect);  // Лог для отладки
+
+            // Отправляем прогресс на сервер
+            sendProgress(card.id, false);
 
             // После выполнения задания, показываем карточку с информацией через 1 секунду
             setTimeout(() => {
@@ -107,16 +148,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
         optionButtons.forEach((button) => {
             button.addEventListener("click", () => {
-                const correctButton = Array.from(optionButtons).find(
-                    (btn) => btn.textContent === card.translation
-                );
+                const isCorrect = button.textContent === card.translation;
 
-                if (button.textContent === card.translation) {
+                if (isCorrect) {
                     button.style.backgroundColor = "green"; // Правильный ответ
                 } else {
                     button.style.backgroundColor = "red"; // Неправильный ответ
+                    const correctButton = Array.from(optionButtons).find(
+                        (btn) => btn.textContent === card.translation
+                    );
                     correctButton.style.backgroundColor = "green"; // Подсвечиваем правильный ответ
                 }
+
+                // Отправляем прогресс на сервер
+                sendProgress(card.id, isCorrect);
 
                 // После выполнения задания, показываем карточку с информацией через 1 секунду
                 setTimeout(() => {
@@ -130,6 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Функция для отображения карточек
     const showCard = (index) => {
+        console.log("Показываем карточку с индексом:", index);
         if (index < cards.length) {
             const card = cards[index];
 
@@ -159,6 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     nextButton.addEventListener("click", () => {
+        console.log("Кнопка 'Далее' нажата");
         currentCardIndex++;
         nextButton.style.display = "none"; // Скрываем кнопку "Далее"
         showCard(currentCardIndex);

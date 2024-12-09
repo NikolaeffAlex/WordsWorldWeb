@@ -3,3 +3,4 @@
 <p>Правильных ответов: {{ progress.correct_answers }}</p>
 <p>Всего ответов: {{ progress.total_answers }}</p>
 <p>Пройдено карточек: {{ progress.completed_cards.count }}</p>
+<p>Процент правильных ответов: {{ progress.accuracy|floatformat:2 }}%</p>
