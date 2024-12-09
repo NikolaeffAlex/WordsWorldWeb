@@ -1,4 +1,5 @@
 /* Общие стили */
+
 body {
     margin: 0;
     font-family: 'Arial', sans-serif;
@@ -435,3 +436,95 @@ button:hover {
 }
 
 
+/* Общие стили для страниц */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7fa;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* Контейнер для формы */
+.form-container {
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    text-align: center;
+}
+
+/* Заголовок формы */
+.form-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Стили для формы */
+.form {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Параграфы и текст */
+.form-text {
+    margin-top: 15px;
+    font-size: 14px;
+    color: #555;
+}
+
+/* Стили для ссылок */
+.form-text a {
+    color: #007BFF;
+    text-decoration: none;
+}
+
+.form-text a:hover {
+    text-decoration: underline;
+}
+
+/* Кнопка отправки формы */
+.btn-submit {
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-submit:hover {
+    background-color: #0056b3;
+}
+
+/* Поля формы */
+.form input {
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    width: 100%;
+}
+
+.form input:focus {
+    border-color: #007BFF;
+    outline: none;
+}
+
+/* Сообщения об ошибках */
+.errorlist {
+    color: red;
+    font-size: 14px;
+    margin-top: 10px;
+    list-style-type: none;
+    padding: 0;
+}

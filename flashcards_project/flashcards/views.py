@@ -1,15 +1,57 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .models import Card, Topic
-from .serializers import CardSerializer
-from urllib.parse import unquote
-from django.contrib.auth.decorators import login_required
+# Стандартные библиотеки
 import random
 import json
-from django.http import JsonResponse
+from urllib.parse import unquote
+
+# Сторонние библиотеки
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from django.shortcuts import render, redirect
-from .forms import CustomUserCreationForm
-from .models import UserProgress, Card
+from django.contrib.auth import login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.views import LoginView
+
+# Локальные модули
+from .models import Card, Topic, UserProgress
+from .serializers import CardSerializer
+from .forms import RegistrationForm
+
+
+# Страница регистрации
+def register(request):
+    if request.method == "POST":
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # Автоматический вход после регистрации
+            return redirect('topics')  # Перенаправление на страницу тем
+    else:
+        form = RegistrationForm()
+    return render(request, 'registration/register.html', {'form': form})
+
+# Страница входа
+def user_login(request):
+    if request.method == "POST":
+        form = AuthenticationForm(data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            login(request, user)
+            return redirect('profile')  # Перенаправление на профиль
+    else:
+        form = AuthenticationForm()
+    return render(request, 'registration/login.html', {'form': form})
+
+# Страница выхода
+def user_logout(request):
+    logout(request)
+    return redirect('login')  # Перенаправление на страницу входа
+
+# Профиль пользователя
+@login_required
+def profile(request):
+    return render(request, 'registration/profile.html')
+
 
 @login_required
 def training(request):
@@ -72,17 +114,25 @@ def cards(request):
     topic = request.GET.get('topic', None)
     return render(request, 'flashcards/cards.html', {'topic': topic})
 
-def register(request):
-    if request.method == 'POST':
-        form = CustomUserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('login')  # перенаправляем на страницу входа
-    else:
-        form = CustomUserCreationForm()
-    return render(request, 'registration/register.html', {'form': form})
 
-@login_required
+def login_view(request):
+    next_url = request.GET.get('next', '/topics/')  # Если нет next, перенаправляем на /topics/
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            login(request, form.get_user())
+            return redirect(next_url)
+    else:
+        form = AuthenticationForm()
+    return render(request, 'registration/login.html', {'form': form})
+
+
+class CustomLoginView(LoginView):
+    template_name = 'registration/login.html'
+
+
+
+"""@login_required
 def progress_view(request):
     progress, created = UserProgress.objects.get_or_create(user=request.user)
     print(progress.correct_answers, progress.total_answers, progress.accuracy)  # Debugging
@@ -118,3 +168,4 @@ def update_progress(request):
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
+"""
