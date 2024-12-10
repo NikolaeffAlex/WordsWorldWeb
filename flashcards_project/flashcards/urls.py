@@ -13,6 +13,7 @@ urlpatterns = [
     path('cards/', views.cards, name='cards'),
     path('api/cards/', views.CardListAPI.as_view(), name='card-list'),
     path('training/', views.training, name='training'),
+    path('update_progress/', views.update_progress, name='update_progress'),
     #path('progress/', views.progress_view, name='progress'),
     #path('update_progress/', views.update_progress, name='update_progress'),
     #path('login/', auth_views.LoginView.as_view(), name='login'),

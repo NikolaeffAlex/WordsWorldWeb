@@ -1,44 +1,28 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const cards = JSON.parse(document.getElementById("card-data").textContent); // Получаем карточки
+    const cards = JSON.parse(document.getElementById("card-data").textContent);
     const cardContainer = document.getElementById("card-container");
     const nextButton = document.getElementById("next-button");
 
     let currentCardIndex = 0;
-    let wordsSeen = new Set();  // Множество для хранения уже встреченных слов
-    let lastCardWasTask = false;  // Флаг для отслеживания, было ли задание перед карточкой с информацией
+    let wordsSeen = new Set();
+    let lastCardWasTask = false;
 
-    // Функция для отправки прогресса на сервер
-    function sendProgress(cardId, correct) {
-        console.log("sendProgress вызвана с данными:", cardId, correct);
-        const csrfToken = document.querySelector('[name="csrfmiddlewaretoken"]').value;
-        console.log('CSRF Token:', csrfToken);// Получаем CSRF токен
-
+    // Отправка прогресса на сервер
+    const sendProgress = (cardId, correct) => {
         fetch('/update_progress/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': csrfToken  // CSRF токен для POST-запросов
+                'X-CSRFToken': document.querySelector('[name="csrfmiddlewaretoken"]').value
             },
-            body: JSON.stringify({
-                card_id: cardId,
-                correct: correct
-            })
+            body: JSON.stringify({ card_id: cardId, correct: correct })
         })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    console.log('Progress updated:', data);
-                    // Можно обновить интерфейс, например, показать актуальную точность
-                } else {
-                    console.error('Error updating progress:', data.message);
-                }
-            })
-            .catch((error) => {
-                console.error('Error:', error);
-            });
-    }
+        .then(response => response.json())
+        .then(data => console.log('Прогресс обновлен:', data))
+        .catch(error => console.error('Ошибка обновления прогресса:', error));
+    };
 
-    // Функция для отображения информационной карточки
+    // Отображение информационной карточки
     const renderInfoCard = (card) => {
         cardContainer.innerHTML = `
             <div class="flashcard">
@@ -47,18 +31,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 <p class="flashcard-translation">${card.translation}</p>
             </div>
         `;
-
-        // Если слово встречается впервые в тренировке
-        if (!wordsSeen.has(card.word)) {
-            nextButton.textContent = "Запомнил";  // Если слово встречается впервые
-        } else {
-            nextButton.textContent = "Помню";  // Если слово уже встречалось
-        }
-
-        nextButton.style.display = "block";  // Показываем кнопку
+        nextButton.textContent = wordsSeen.has(card.word) ? "Помню" : "Запомнил";
+        nextButton.style.display = "block";
     };
 
-    // Функция для отображения карточки с вводом слова
+    // Отображение карточки с вводом слова
     const renderInputCard = (card) => {
         cardContainer.innerHTML = `
             <div class="flashcard">
@@ -74,124 +51,87 @@ document.addEventListener("DOMContentLoaded", () => {
         const feedback = document.getElementById("feedback");
 
         document.getElementById("check-button").addEventListener("click", () => {
-            const userInput = inputField.value.trim().toLowerCase();
-            const isCorrect = userInput === card.word.toLowerCase();
+            const isCorrect = inputField.value.trim().toLowerCase() === card.word.toLowerCase();
+            feedback.textContent = isCorrect ? "Правильно!" : "Неправильно!";
+            feedback.style.color = isCorrect ? "green" : "red";
 
-            if (isCorrect) {
-                inputField.style.borderColor = "green";
-                inputField.style.backgroundColor = "#d4edda";
-                feedback.textContent = "Правильно!";
-                feedback.style.color = "green";
-            } else {
-                inputField.style.borderColor = "red";
-                inputField.style.backgroundColor = "#f8d7da";
-                feedback.textContent = `Неправильно!`;
-                feedback.style.color = "red";
-            }
-
-            // Отправляем прогресс на сервер
             sendProgress(card.id, isCorrect);
 
-            // После выполнения задания, показываем карточку с информацией через 1 секунду
             setTimeout(() => {
-                renderInfoCard(card);  // Показываем карточку с информацией
-                wordsSeen.add(card.word);  // Добавляем слово в множество встреченных
-                lastCardWasTask = true;  // Помечаем, что было задание
-            }, 1000); // Задержка 1 секунда
+                renderInfoCard(card);
+                wordsSeen.add(card.word);
+                lastCardWasTask = true;
+            }, 1000);
         });
 
         document.getElementById("reveal-button").addEventListener("click", () => {
             feedback.textContent = `Правильное слово: ${card.word}`;
             feedback.style.color = "blue";
 
-            console.log("sendProgress вызвана:", card.id, isCorrect);  // Лог для отладки
-
-            // Отправляем прогресс на сервер
             sendProgress(card.id, false);
 
-            // После выполнения задания, показываем карточку с информацией через 1 секунду
             setTimeout(() => {
-                renderInfoCard(card);  // Показываем карточку с информацией
-                wordsSeen.add(card.word);  // Добавляем слово в множество встреченных
-                lastCardWasTask = true;  // Помечаем, что было задание
-            }, 1000); // Задержка 1 секунда
+                renderInfoCard(card);
+                wordsSeen.add(card.word);
+                lastCardWasTask = true;
+            }, 1000);
         });
     };
 
-    // Функция для отображения карточки с выбором правильного перевода
+    // Отображение карточки с выбором перевода
     const renderChoiceCard = (card, allCards) => {
-        // Получаем случайные переводы для неверных вариантов
-        const otherTranslations = allCards
-            .filter((c) => c.word !== card.word) // Исключаем перевод текущего слова
-            .map((c) => c.translation);
+        const incorrectOptions = shuffle(
+            allCards
+                .filter(c => c.word !== card.word)
+                .map(c => c.translation)
+        ).slice(0, 2);
 
-        // Перемешиваем переводы, чтобы случайные варианты не повторялись
-        const incorrectOptions = shuffle(otherTranslations).slice(0, 2); // Два случайных перевода
-        const options = [card.translation, ...incorrectOptions]; // Объединяем правильный вариант с двумя неправильными
-
-        // Перемешиваем все варианты, чтобы правильный вариант не был всегда первым
-        shuffle(options);
+        const options = shuffle([card.translation, ...incorrectOptions]);
 
         cardContainer.innerHTML = `
             <div class="flashcard">
                 <p class="flashcard-word">${card.word}</p>
                 <p class="flashcard-translation">Выберите правильный перевод:</p>
                 <div id="options">
-                    <button class="option-button" data-correct="${card.translation}">${options[0]}</button>
-                    <button class="option-button" data-correct="${card.translation}">${options[1]}</button>
-                    <button class="option-button" data-correct="${card.translation}">${options[2]}</button>
+                    ${options.map(option => `<button class="option-button">${option}</button>`).join('')}
                 </div>
             </div>
         `;
 
-        const optionButtons = document.querySelectorAll(".option-button");
-
-        optionButtons.forEach((button) => {
+        document.querySelectorAll(".option-button").forEach(button => {
             button.addEventListener("click", () => {
                 const isCorrect = button.textContent === card.translation;
+                button.style.backgroundColor = isCorrect ? "green" : "red";
 
-                if (isCorrect) {
-                    button.style.backgroundColor = "green"; // Правильный ответ
-                } else {
-                    button.style.backgroundColor = "red"; // Неправильный ответ
-                    const correctButton = Array.from(optionButtons).find(
-                        (btn) => btn.textContent === card.translation
-                    );
-                    correctButton.style.backgroundColor = "green"; // Подсвечиваем правильный ответ
+                if (!isCorrect) {
+                    const correctButton = Array.from(document.querySelectorAll(".option-button"))
+                        .find(btn => btn.textContent === card.translation);
+                    correctButton.style.backgroundColor = "green";
                 }
 
-                // Отправляем прогресс на сервер
                 sendProgress(card.id, isCorrect);
 
-                // После выполнения задания, показываем карточку с информацией через 1 секунду
                 setTimeout(() => {
-                    renderInfoCard(card);  // Показываем карточку с информацией
-                    wordsSeen.add(card.word);  // Добавляем слово в множество встреченных
-                    lastCardWasTask = true;  // Помечаем, что было задание
-                }, 1000); // Задержка 1 секунда
+                    renderInfoCard(card);
+                    wordsSeen.add(card.word);
+                    lastCardWasTask = true;
+                }, 1000);
             });
         });
     };
 
-    // Функция для отображения карточек
+    // Показ текущей карточки
     const showCard = (index) => {
-        console.log("Показываем карточку с индексом:", index);
         if (index < cards.length) {
             const card = cards[index];
-
             if (card.type === "info") {
-                if (lastCardWasTask) {
-                    renderInfoCard(card);  // Показываем карточку с информацией
-                    lastCardWasTask = false;  // После карточки с информацией, задание должно быть следующей карточкой
-                } else {
-                    renderInfoCard(card);  // Показываем карточку с информацией
-                    lastCardWasTask = false;  // Карточка с информацией без задания
-                }
+                renderInfoCard(card);
+                lastCardWasTask = false;
             } else if (card.type === "input") {
-                renderInputCard(card);  // Карточка с вводом слова
+                renderInputCard(card);
             } else if (card.type === "choice") {
-                renderChoiceCard(card, cards);  // Карточка с выбором перевода
-                lastCardWasTask = true;  // Помечаем, что было задание
+                renderChoiceCard(card, cards);
+                lastCardWasTask = true;
             }
         } else {
             cardContainer.innerHTML = `
@@ -205,20 +145,20 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     nextButton.addEventListener("click", () => {
-        console.log("Кнопка 'Далее' нажата");
         currentCardIndex++;
-        nextButton.style.display = "none"; // Скрываем кнопку "Далее"
+        nextButton.style.display = "none";
         showCard(currentCardIndex);
     });
 
-    showCard(currentCardIndex); // Отображаем первую карточку
+    showCard(currentCardIndex);
+
+    // Перемешивание массива
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
 });
 
-// Функция для случайного перемешивания элементов
-function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]]; // Перестановка элементов
-    }
-    return array;
-}

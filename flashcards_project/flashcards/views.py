@@ -11,9 +11,10 @@ from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
+from django.http import JsonResponse
 
 # Локальные модули
-from .models import Card, Topic, UserProgress
+from .models import Card, Topic, UserCardProgress
 from .serializers import CardSerializer
 from .forms import RegistrationForm
 
@@ -50,7 +51,8 @@ def user_logout(request):
 # Профиль пользователя
 @login_required
 def profile(request):
-    return render(request, 'registration/profile.html')
+    progress = UserCardProgress.objects.filter(user=request.user).order_by('status')
+    return render(request, 'registration/profile.html', {'progress': progress})
 
 
 @login_required
@@ -86,7 +88,18 @@ def training(request):
         elif card_type == 'choice' and choice_cards:
             training_data.append(choice_cards.pop())
 
-    # Передаем карточки в шаблон
+    if request.method == 'POST':
+        for card_data in training_data:
+            card = Card.objects.get(id=card_data['id'])
+            user_progress, created = UserCardProgress.objects.get_or_create(user=request.user, card=card)
+
+            user_answer = request.POST.get(f'card_{card.id}', '').strip().lower()
+            correct = user_answer == card.translation.lower()
+
+            user_progress.update_status(correct)
+
+        return redirect('profile')
+
     return render(request, 'flashcards/training.html', {'cards': json.dumps(training_data)})
 
 
@@ -126,6 +139,20 @@ def login_view(request):
         form = AuthenticationForm()
     return render(request, 'registration/login.html', {'form': form})
 
+@login_required
+def update_progress(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        card_id = data.get('card_id')
+        correct = data.get('correct')
+
+        card = Card.objects.get(id=card_id)
+        user_progress, created = UserCardProgress.objects.get_or_create(user=request.user, card=card)
+
+        user_progress.update_status(correct)
+
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'}, status=400)
 
 class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
