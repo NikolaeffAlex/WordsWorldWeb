@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Детали темы</title>
+</head>
+<body>
+    <header>
+        <h1>Тема: {{ topic.name }}</h1>
+        <a href="{% url 'profile' %}">Назад к профилю</a>
+    </header>
+
+    <section>
+        <h2>Слова:</h2>
+        <ul>
+            {% for word in word_stats %}
+                <li>
+                    {{ word.word }} ({{ word.translation }}) - Статус: {{ word.status }}
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+</body>
+</html>

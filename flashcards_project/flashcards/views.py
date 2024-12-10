@@ -12,6 +12,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth.views import LoginView
 from django.http import JsonResponse
+from django.db.models import Count, Q
 
 # Локальные модули
 from .models import Card, Topic, UserCardProgress
@@ -31,6 +32,7 @@ def register(request):
         form = RegistrationForm()
     return render(request, 'registration/register.html', {'form': form})
 
+
 # Страница входа
 def user_login(request):
     if request.method == "POST":
@@ -43,16 +45,18 @@ def user_login(request):
         form = AuthenticationForm()
     return render(request, 'registration/login.html', {'form': form})
 
+
 # Страница выхода
 def user_logout(request):
     logout(request)
     return redirect('login')  # Перенаправление на страницу входа
 
+
 # Профиль пользователя
 @login_required
 def profile(request):
     progress = UserCardProgress.objects.filter(user=request.user).order_by('status')
-    return render(request, 'registration/profile.html', {'progress': progress})
+    return render(request, 'flashcards/profile.html', {'progress': progress})
 
 
 @login_required
@@ -103,7 +107,6 @@ def training(request):
     return render(request, 'flashcards/training.html', {'cards': json.dumps(training_data)})
 
 
-
 def topics(request):
     topics = Topic.objects.all()  # Получаем все темы из базы
     return render(request, 'flashcards/topics.html', {'topics': topics})
@@ -123,6 +126,7 @@ class CardListAPI(APIView):
 def index(request):
     return render(request, 'flashcards/index.html')
 
+
 def cards(request):
     topic = request.GET.get('topic', None)
     return render(request, 'flashcards/cards.html', {'topic': topic})
@@ -138,6 +142,7 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, 'registration/login.html', {'form': form})
+
 
 @login_required
 def update_progress(request):
@@ -158,6 +163,47 @@ class CustomLoginView(LoginView):
     template_name = 'registration/login.html'
 
 
+@login_required
+def profile(request):
+    # Получаем список тем
+    topics = Topic.objects.all()
+
+    # Статистика по темам: процент изученных слов
+    stats = []
+    for topic in topics:
+        total_words = Card.objects.filter(topic=topic).count()
+        learned_words = Card.objects.filter(topic=topic, userprogress__status="learned").count()
+        if total_words > 0:
+            percentage = (learned_words / total_words) * 100
+        else:
+            percentage = 0
+        stats.append({
+            'topic': topic,
+            'total_words': total_words,
+            'learned_words': learned_words,
+            'percentage': percentage
+        })
+
+    return render(request, 'flashcards/profile.html', {'stats': stats})
+
+
+@login_required
+def topic_details(request, topic_id):
+    topic = Topic.objects.get(id=topic_id)
+    words = Card.objects.filter(topic=topic)
+
+    # Получаем статистику по словам
+    word_stats = []
+    for word in words:
+        user_progress = word.userprogress_set.filter(user=request.user).first()
+        status = user_progress.status if user_progress else "not_learned"
+        word_stats.append({
+            'word': word.word,
+            'translation': word.translation,
+            'status': status
+        })
+
+    return render(request, 'flashcards/topic_details.html', {'topic': topic, 'word_stats': word_stats})
 
 """@login_required
 def progress_view(request):

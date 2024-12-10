@@ -16,23 +16,19 @@ class Card(models.Model):
     def __str__(self):
         return self.word
 
-'''
-# Данная модель нужна для сохранения прогресса, но не совсем в том ключе, который нам нужен. Можно ее переделать
 class UserProgress(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    correct_answers = models.IntegerField(default=0)
-    total_answers = models.IntegerField(default=0)
-    completed_cards = models.ManyToManyField(Card)
-
-    @property
-    def accuracy(self):
-        if self.total_answers == 0:
-            return 0
-        return (self.correct_answers / self.total_answers) * 100
+    STATUS_CHOICES = [
+        ("learned", "Выучено"),
+        ("needs_review", "Нуждается в повторении"),
+        ("not_learned", "Не выучено"),
+    ]
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    card = models.ForeignKey(Card, on_delete=models.CASCADE)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="not_learned")
 
     def __str__(self):
-        return f"{self.user.username}'s Progress"
-'''
+        return f"{self.user.username} - {self.card.word} - {self.status}"
+
 
 class UserCardProgress(models.Model):
     STATUS_CHOICES = [

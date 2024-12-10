@@ -1,6 +1,12 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
+<header>
+    <div style="display: flex; justify-content: space-between;">
+        <h1>Выбор тем</h1>
+        <a href="{% url 'profile' %}" style="align-self: center;">Профиль</a>
+    </div>
+</header>
 
 <head>
     <meta charset="UTF-8">
@@ -8,6 +14,7 @@
     <title>Выбор тем</title>
     <link rel="stylesheet" href="{% static 'flashcards/css/style.css' %}">
 </head>
+
 
 <body>
     <div class="topic-container">

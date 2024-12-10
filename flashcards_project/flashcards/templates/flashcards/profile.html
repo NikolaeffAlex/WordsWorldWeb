@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль</title>
+</head>
+<body>
+    <header>
+        <h1>Профиль пользователя: {{ user.username }}</h1>
+        <a href="{% url 'logout' %}">Выйти</a>
+    </header>
+
+    <section>
+        <h2>Статистика по темам:</h2>
+        <ul>
+            {% for stat in stats %}
+                <li>
+                    <a href="{% url 'topic_details' stat.topic.id %}">
+                        {{ stat.topic.name }}
+                    </a>
+                    - {{ stat.percentage|floatformat:1 }}% ({{ stat.learned_words }}/{{ stat.total_words }} слов)
+                </li>
+            {% endfor %}
+        </ul>
+    </section>
+</body>
+</html>
