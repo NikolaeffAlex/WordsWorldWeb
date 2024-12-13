@@ -16,7 +16,8 @@ class Card(models.Model):
     def __str__(self):
         return self.word
 
-class UserProgress(models.Model):
+
+class UserCardProgress(models.Model):
     STATUS_CHOICES = [
         ("learned", "Выучено"),
         ("needs_review", "Нуждается в повторении"),
@@ -25,30 +26,13 @@ class UserProgress(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     card = models.ForeignKey(Card, on_delete=models.CASCADE)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="not_learned")
-
-    def __str__(self):
-        return f"{self.user.username} - {self.card.word} - {self.status}"
-
-
-class UserCardProgress(models.Model):
-    STATUS_CHOICES = [
-        ("not_learned", "Не выучено"),
-        ("repeat", "Нуждается в повторении"),
-        ("learned", "Выучено"),
-    ]
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    card = models.ForeignKey(Card, on_delete=models.CASCADE)
-    status = models.CharField(
-        max_length=20, choices=STATUS_CHOICES, default="not_learned"
-    )
-    correct_streak = models.IntegerField(default=0)
-    total_attempts = models.IntegerField(default=0)
-    mistakes = models.IntegerField(default=0)
+    correct_streak = models.IntegerField(default=0)  # Счетчик правильных ответов подряд
+    mistakes = models.IntegerField(default=0)  # Количество ошибок
+    total_attempts = models.IntegerField(default=0)  # Общее количество попыток
 
     def update_status(self, correct):
         """
-        Обновляет статус карточки на основе правильных ответов.
+        Обновляет статус карточки в зависимости от результата задания.
         """
         self.total_attempts += 1
         if correct:
@@ -59,10 +43,10 @@ class UserCardProgress(models.Model):
             self.correct_streak = 0
             self.mistakes += 1
             if self.status == "learned":
-                self.status = "repeat"
-
+                self.status = "needs_review"
         self.save()
 
     def __str__(self):
-        return f"{self.user.username} - {self.card.word} - {self.get_status_display()}"
+        return f"{self.user.username} - {self.card.word} - {self.status}"
+
 

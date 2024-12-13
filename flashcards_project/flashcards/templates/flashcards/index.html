@@ -1,20 +1,31 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WordsWorldWeb</title>
     <link rel="stylesheet" href="{% static 'flashcards/css/style.css' %}">
 </head>
-
 <body>
-    <div class="hero-container">
-        <h1 class="hero-title">Добро пожаловать в WordsWorldWeb!</h1>
-        <p class="hero-subtitle">Начните изучать английские слова быстро и эффективно.</p>
-        <button class="start-button" onclick="window.location.href='{% url 'register' %}'">Начать учить слова</button>
+    <div class="main-container">
+        <div class="letter-layer"></div> <!-- Слой букв -->
+        <div class="content">
+            <!-- Заголовок с разбивкой по частям -->
+            <h1 class="main-title">
+                <span class="welcome">Welcome</span><br>
+                <span class="to">to</span><br>
+                <span class="wordsworldweb">WordsWorldWeb</span>
+            </h1>
+            <!-- Разделитель -->
+            <div class="divider"></div>
+            <!-- Кнопка -->
+            <button class="start-button" onclick="window.location.href='{% url 'register' %}'">Начать учить слова</button>
+        </div>
     </div>
 </body>
-
 </html>
+
+
+
+

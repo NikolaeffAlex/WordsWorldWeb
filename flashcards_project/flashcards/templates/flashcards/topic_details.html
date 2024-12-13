@@ -1,25 +1,25 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Детали темы</title>
+    <link rel="stylesheet" href="{% static 'flashcards/css/style.css' %}">
 </head>
-<body>
-    <header>
-        <h1>Тема: {{ topic.name }}</h1>
-        <a href="{% url 'profile' %}">Назад к профилю</a>
-    </header>
+<body class="topic-details-page">
+    <div class="details-container">
+        <h1 class="details-title">Тема: {{ topic.name }}</h1>
+        <a href="{% url 'profile' %}" class="details-back-button">Назад к профилю</a>
 
-    <section>
-        <h2>Слова:</h2>
-        <ul>
+        <div class="details-word-list">
             {% for word in word_stats %}
-                <li>
-                    {{ word.word }} ({{ word.translation }}) - Статус: {{ word.status }}
-                </li>
+            <div class="details-word-item">
+                <span class="details-word-text">{{ word.word }} ({{ word.translation }})</span>
+                <span class="details-word-status">{{ word.status }}</span>
+            </div>
             {% endfor %}
-        </ul>
-    </section>
+        </div>
+    </div>
 </body>
 </html>

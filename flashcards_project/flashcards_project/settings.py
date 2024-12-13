@@ -38,9 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'flashcards',
-    'rest_framework',
+    'flashcards.apps.FlashcardsConfig',  # Указываем конфигурацию приложения
+    'rest_framework',  # Если используется DRF
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

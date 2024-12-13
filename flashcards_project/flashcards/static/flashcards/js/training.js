@@ -1,5 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
     const cards = JSON.parse(document.getElementById("card-data").textContent);
+    console.log(cards);  // Логируем все карточки, которые пришли из Django
     const cardContainer = document.getElementById("card-container");
     const nextButton = document.getElementById("next-button");
 
@@ -9,6 +10,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Отправка прогресса на сервер
     const sendProgress = (cardId, correct) => {
+        console.log(`Sending progress for card ${cardId}, correct: ${correct}`)
         fetch('/update_progress/', {
             method: 'POST',
             headers: {
@@ -24,6 +26,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Отображение информационной карточки
     const renderInfoCard = (card) => {
+
         cardContainer.innerHTML = `
             <div class="flashcard">
                 <p class="flashcard-word">${card.word}</p>
@@ -32,6 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `;
         nextButton.textContent = wordsSeen.has(card.word) ? "Помню" : "Запомнил";
+        console.log(nextButton.style.display);
         nextButton.style.display = "block";
     };
 
@@ -124,14 +128,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const showCard = (index) => {
         if (index < cards.length) {
             const card = cards[index];
+            console.log(`Rendering card of type: ${card.type}`);  // Логируем тип карточки
+
             if (card.type === "info") {
                 renderInfoCard(card);
                 lastCardWasTask = false;
             } else if (card.type === "input") {
                 renderInputCard(card);
-            } else if (card.type === "choice") {
+            } else if (card.type === "choose_correct_translation") {
                 renderChoiceCard(card, cards);
                 lastCardWasTask = true;
+            } else if (card.type === "type_word") {
+                renderInputCard(card);
+                lastCardWasTask = true;
+            } else {
+                console.log("Unknown card type: ", card.type);
             }
         } else {
             cardContainer.innerHTML = `
@@ -148,6 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
         currentCardIndex++;
         nextButton.style.display = "none";
         showCard(currentCardIndex);
+        console.log(`Next button display: ${nextButton.style.display}`);  // Логируем состояние кнопки
     });
 
     showCard(currentCardIndex);

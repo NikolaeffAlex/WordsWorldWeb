@@ -1,34 +1,36 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<header>
-    <div style="display: flex; justify-content: space-between;">
-        <h1>Выбор тем</h1>
-        <a href="{% url 'profile' %}" style="align-self: center;">Профиль</a>
-    </div>
-</header>
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Выбор тем</title>
+    <title>Выбор Тем</title>
     <link rel="stylesheet" href="{% static 'flashcards/css/style.css' %}">
 </head>
+<body class="topics-page">
+    <!-- Белый прямоугольник -->
+    <div class="main-container">
+        <!-- Заголовок -->
+        <h1 class="main-title">Выберите тему</h1>
+        <a href="{% url 'profile' %}" class="profile-link">Профиль</a>
+        <div class="divider"></div>
 
+        <!-- Темы -->
+        <div class="topics-grid">
+            {% for topic in topics %}
+            <label class="topic-item">
+                <input type="checkbox" value="{{ topic.name }}" id="topic_{{ forloop.counter }}">
+                <span class="checkbox"></span>
+                {{ topic.name }}
+            </label>
+            {% endfor %}
+        </div>
 
-<body>
-    <div class="topic-container">
-    <div class="topics-grid">
-        {% for topic in topics %}
-        <label class="topic-item">
-            <input type="checkbox" value="{{ topic.name }}" id="topic_{{ forloop.counter }}">
-            {{ topic.name }}
-        </label>
-        {% endfor %}
+        <!-- Кнопка -->
+        <button id="start-training" class="start-button">Начать тренировку</button>
     </div>
-    <button id="start-training">Начать тренировку</button>
-</div>
-<script src="{% static 'flashcards/js/topics.js' %}"></script>
-</body>
 
+    <script src="{% static 'flashcards/js/topics.js' %}"></script>
+</body>
 </html>
+

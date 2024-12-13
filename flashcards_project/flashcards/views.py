@@ -70,41 +70,123 @@ def training(request):
     else:
         cards = Card.objects.all()  # Если темы не выбраны, возвращаем все карточки
 
-    # Преобразуем QuerySet в список, перемешиваем и ограничиваем тренировку 10 карточками
-    cards = list(cards)  # Преобразуем QuerySet в список
-    random.shuffle(cards)  # Перемешиваем карточки
-    cards = cards[:10]  # Ограничиваем тренировку 10 карточками
+    # Подготовка статусов карточек
+    user_progress = UserCardProgress.objects.filter(user=request.user, card__in=cards).select_related('card')
+    statuses = {
+        "not_learned": [progress.card.word for progress in user_progress if progress.status == "not_learned"],
+        "needs_review": [progress.card.word for progress in user_progress if progress.status == "needs_review"],
+        "learned": [progress.card.word for progress in user_progress if progress.status == "learned"],
+    }
 
-    # Разделяем карточки по типам, добавляем id
-    info_cards = [{'id': card.id, 'type': 'info', 'word': card.word, 'transcription': card.transcription, 'translation': card.translation} for card in cards]
-    input_cards = [{'id': card.id, 'type': 'input', 'translation': card.translation, 'word': card.word} for card in cards]
-    choice_cards = [{'id': card.id, 'type': 'choice', 'word': card.word, 'translation': card.translation} for card in cards]
+    # Получаем тренировочный набор
+    training_set = generate_training_set(statuses, total_cards=35, total_words=7)
 
-    # Объединяем карточки с разными типами
+    # Подготавливаем данные для шаблона
     training_data = []
-    while info_cards or input_cards or choice_cards:
-        card_type = random.choice(['info', 'input', 'choice'])
+    card_map = {card.word: card for card in cards}
 
-        if card_type == 'info' and info_cards:
-            training_data.append(info_cards.pop())
-        elif card_type == 'input' and input_cards:
-            training_data.append(input_cards.pop())
-        elif card_type == 'choice' and choice_cards:
-            training_data.append(choice_cards.pop())
+    for word, card_type in training_set:
+        card = card_map.get(word)
+        if card:
+            training_data.append({
+                'id': card.id,
+                'type': card_type,
+                'word': card.word,
+                'transcription': card.transcription,
+                'translation': card.translation,
+            })
+
+    # Логирование
+
 
     if request.method == 'POST':
+        # Обработка ответов
         for card_data in training_data:
             card = Card.objects.get(id=card_data['id'])
             user_progress, created = UserCardProgress.objects.get_or_create(user=request.user, card=card)
 
+            # Получаем ответ пользователя
             user_answer = request.POST.get(f'card_{card.id}', '').strip().lower()
             correct = user_answer == card.translation.lower()
 
+            # Обновляем статус карточки
             user_progress.update_status(correct)
 
         return redirect('profile')
 
+    # Логирование: проверим, сколько карточек выбираем
+    print(f"Training data length: {len(training_data)}")
+
+    # Логирование: проверим содержимое тренировочного набора
+    print(f"Training data: {training_data}")
     return render(request, 'flashcards/training.html', {'cards': json.dumps(training_data)})
+
+
+def generate_training_set(statuses, total_cards=35, total_words=7):
+    all_words = []
+    word_status_map = {}
+    training_set = []
+
+    # Создаем плоский список слов с их статусами
+    for status, words in statuses.items():
+        for word in words:
+            all_words.append(word)
+            word_status_map[word] = status
+
+    # Сортируем слова по статусам
+    not_learned = [word for word in all_words if word_status_map[word] == "not_learned"]
+    needs_review = [word for word in all_words if word_status_map[word] == "needs_review"]
+    learned = [word for word in all_words if word_status_map[word] == "learned"]
+
+    # Инициализируем список для выбранных слов
+    selected_words = []
+
+    # Шаг 1: Заполняем список выбранных слов (total_words) по категориям
+    # 1. Сначала из not_learned
+    selected_words.extend(random.sample(not_learned, min(len(not_learned), total_words - len(selected_words))))
+
+    # 2. Если не хватает, берем из needs_review
+    remaining_words = total_words - len(selected_words)
+    selected_words.extend(random.sample(needs_review, min(len(needs_review), remaining_words)))
+
+    # 3. Если все равно не хватает, берем из learned
+    remaining_words = total_words - len(selected_words)
+    selected_words.extend(random.sample(learned, min(len(learned), remaining_words)))
+
+    # Убедимся, что у нас есть нужное количество слов
+    if len(selected_words) < total_words:
+        print("Warning: не хватает слов для тренировки, увеличиваем количество повторений.")
+        # Заполняем недостающие слова случайным образом из доступных
+        all_available_words = list(set(not_learned + needs_review + learned))
+        remaining_words = total_words - len(selected_words)
+        if len(all_available_words) >= remaining_words:
+            selected_words.extend(random.sample(all_available_words, remaining_words))
+        else:
+            selected_words.extend(all_available_words)
+
+    # Делаем случайное перемешивание выбранных слов
+    random.shuffle(selected_words)
+
+    # Шаг 2: Генерируем тренировочный набор (35 карточек)
+    word_usage_count = {word: 0 for word in selected_words}
+    info_shown = set()
+
+    # Генерация набора карточек для тренировки
+    while len(training_set) < total_cards:
+        word = random.choice(selected_words)
+
+        # Учитываем максимум 5 карточек на слово (1 информационная + 4 задания)
+        if word_usage_count[word] < 5:
+            if word not in info_shown:  # Первая карточка всегда информационная
+                training_set.append((word, "info"))
+                info_shown.add(word)
+            else:  # После информационной карточки идут задания
+                task_type = random.choice(["choose_correct_translation", "type_word"])
+                training_set.append((word, task_type))
+
+            word_usage_count[word] += 1
+
+    return training_set
 
 
 def topics(request):
@@ -172,7 +254,7 @@ def profile(request):
     stats = []
     for topic in topics:
         total_words = Card.objects.filter(topic=topic).count()
-        learned_words = Card.objects.filter(topic=topic, userprogress__status="learned").count()
+        learned_words = Card.objects.filter(topic=topic, usercardprogress__status="learned").count()
         if total_words > 0:
             percentage = (learned_words / total_words) * 100
         else:
@@ -195,7 +277,7 @@ def topic_details(request, topic_id):
     # Получаем статистику по словам
     word_stats = []
     for word in words:
-        user_progress = word.userprogress_set.filter(user=request.user).first()
+        user_progress = word.usercardprogress_set.filter(user=request.user).first()
         status = user_progress.status if user_progress else "not_learned"
         word_stats.append({
             'word': word.word,
@@ -205,40 +287,4 @@ def topic_details(request, topic_id):
 
     return render(request, 'flashcards/topic_details.html', {'topic': topic, 'word_stats': word_stats})
 
-"""@login_required
-def progress_view(request):
-    progress, created = UserProgress.objects.get_or_create(user=request.user)
-    print(progress.correct_answers, progress.total_answers, progress.accuracy)  # Debugging
-    return render(request, 'flashcards/progress.html', {'progress': progress})
 
-
-@login_required
-def update_progress(request):
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            card_id = data.get('card_id')
-            correct = data.get('correct')
-
-            # Отладочный вывод
-            print(f"Received card_id: {card_id}, correct: {correct}")
-
-            card = Card.objects.get(id=card_id)
-            progress, created = UserProgress.objects.get_or_create(user=request.user)
-
-            if correct:
-                progress.correct_answers += 1
-            progress.total_answers += 1
-            progress.completed_cards.add(card)
-            progress.save()
-
-            # Отладочный вывод
-            print(f"Updated progress: {progress.correct_answers}/{progress.total_answers}")
-
-            return JsonResponse({'status': 'success', 'progress': progress.accuracy})
-        except Exception as e:
-            print(f"Error: {str(e)}")
-            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
-
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method'}, status=405)
-"""

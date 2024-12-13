@@ -1,5 +1,6 @@
-/* Общие стили */
+/* === Общие стили (для всего сайта) === */
 
+/* Фон страницы */
 body {
     margin: 0;
     font-family: 'Arial', sans-serif;
@@ -7,36 +8,112 @@ body {
     justify-content: center;
     align-items: center;
     height: 100vh;
-    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    background:
+        linear-gradient(to bottom, rgba(36, 87, 228, 0.75), rgba(123, 62, 244, 0.75)),
+        url('../images/background.png'); /* Градиент и фоновая картинка */
+    background-size: cover;
+    background-position: center;
     color: #fff;
 }
 
-/* Главный контейнер */
-.container {
-    text-align: center;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 16px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    max-width: 800px;
+/* === Входная страница === */
+
+/* Основной контейнер */
+.main-container {
+    position: relative; /* Для корректной работы слоёв */
+    text-align: center; /* Центрируем содержимое */
+    background: white; /* Белый фон блока */
+    border-radius: 16px; /* Закругление углов */
+    padding: 480px 480px; /* Размер контейнера */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Тень вокруг блока */
+    max-width: 700px; /* Максимальная ширина */
+    width: 90%; /* Ширина блока относительно экрана */
+    z-index: 2; /* Основной контент выше слоя с буквами */
 }
 
-/* Заголовки */
-h1 {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-    color: #fff;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.4);
+/* Слой букв внутри main-container */
+.letter-layer {
+    position: absolute; /* Абсолютное позиционирование для размещения внутри контейнера */
+    top: 0; /* Привязка к верхней части main-container */
+    left: 0; /* Привязка к левой части main-container */
+    width: 100%; /* Растягиваем по ширине контейнера */
+    height: 100%; /* Растягиваем по высоте контейнера */
+    background: url('../images/letters-pattern.jpg') no-repeat center; /* Фон с буквами */
+    background-size: cover; /* Растягиваем изображение с буквами */
+    opacity: 0.4; /* Прозрачность букв */
+    z-index: 3; /* Располагаем ниже остальных элементов */
+    pointer-events: none; /* Блокируем взаимодействие с буквой (для кликов по кнопке) */
 }
 
-h2 {
-    font-size: 1.5rem;
-    margin-bottom: 10px;
-    color: #f0f0f0;
+/* Заголовок */
+.main-title {
+    position: relative; /* Для сохранения слоёв */
+    font-size: 4rem; /* Размер шрифта */
+    font-family: 'Roboto', sans-serif; /* Шрифт Roboto */
+    font-weight: 800; /* ExtraBold для Welcome */
+    color: #6A1B9A; /* Фиолетовый цвет текста */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Тень текста */
+    line-height: 1; /* Уменьшили межстрочный интервал */
+    margin: 0; /* Убрали отступы */
+    z-index: 3; /* Заголовок выше букв */
+    margin-top: -350px;
+}
+
+/* Welcome — первая часть заголовка */
+.main-title span.welcome {
+    font-family: 'Roboto', sans-serif; /* Шрифт Roboto */
+    font-weight: 800; /* ExtraBold */
+    font-size: 4.5rem; /* Увеличенный размер */
+    color: #6A1B9A; /* Фиолетовый цвет */
+}
+
+/* to — вторая часть заголовка */
+.main-title span.to {
+    font-family: 'Roboto Mono', monospace; /* Шрифт Roboto Mono */
+    font-weight: bold; /* Жирный текст */
+    font-size: 2rem; /* Меньший размер */
+    color: #000000; /* Чёрный цвет текста */
+}
+
+/* WordsWorldWeb — третья часть заголовка */
+.main-title span.wordsworldweb {
+    font-family: 'Roboto Serif', serif; /* Шрифт Roboto Serif */
+    font-weight: bold; /* Жирный текст */
+    font-size: 2.5rem; /* Размер текста */
+    color: #1A237E; /* Тёмно-синий цвет текста */
+}
+
+/* Разделитель */
+.divider {
+    width: 90%; /* Ширина разделителя относительно контейнера */
+    margin: 20px auto; /* Отступы сверху и снизу, центрирование по горизонтали */
+    border-top: 2px dashed #000000; /* Пунктирная линия чёрного цвета */
+}
+
+/* Кнопка */
+.start-button {
+    position: relative; /* Для корректного наложения на слой букв */
+    padding: 15px 40px; /* Внутренние отступы */
+    font-size: 1.5rem; /* Размер текста */
+    background-color: #673AB7; /* Фиолетовый цвет кнопки */
+    color: white; /* Белый текст */
+    border: none; /* Убираем границу */
+    border-radius: 8px; /* Закругленные углы кнопки */
+    cursor: pointer; /* Курсор в виде руки при наведении */
+    transition: background-color 0.3s ease, transform 0.2s ease; /* Анимация при наведении */
+    margin-top: 30px; /* Отступ сверху */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); /* Тень под кнопкой */
+    z-index: 3; /* Кнопка выше букв */
+}
+
+/* Анимация кнопки при наведении */
+.start-button:hover {
+    background-color: #512DA8; /* Темно-фиолетовый цвет при наведении */
+    transform: translateY(-3px); /* Поднимаем кнопку */
 }
 
 /* Кнопки */
-button {
+button, .nav-button, .btn-submit, .back-button {
     padding: 10px 20px;
     font-size: 1rem;
     color: #fff;
@@ -48,58 +125,169 @@ button {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-button:hover {
+button:hover, .nav-button:hover, .btn-submit:hover, .back-button:hover {
     background-color: #0056b3;
     transform: translateY(-3px);
+}
+
+/* === Страница выбора тем === */
+/* Белый прямоугольник */
+.topics-page .main-container {
+    text-align: center;
+    background: white; /* Белый фон */
+    border-radius: 16px; /* Закругленные углы */
+    padding: 80px 20px; /* Отступы внутри прямоугольника */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Тень */
+    max-width: 900px; /* Ширина прямоугольника */
+    width: 90%;
+}
+
+/* Заголовок */
+.topics-page .main-title {
+    font-family: 'Roboto', sans-serif;
+    font-weight: bold; /* Жирный текст */
+    margin-top: -60px;
+    font-size: 3rem; /* Размер заголовка */
+    font-weight: bold; /* Жирный текст */
+    text-align: center; /* Центрирование текста */
+    margin-bottom: 20px; /* Отступ снизу */
+    background: linear-gradient(to right, #2457E4, #7B3EF4); /* Градиентный фон */
+    -webkit-background-clip: text; /* Используем фон для текста */
+    -webkit-text-fill-color: transparent; /* Делаем текст прозрачным */
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2); /* Лёгкая тень для читаемости */
+}
+
+/* Профиль-ссылка */
+.profile-link {
+    display: block;
+    margin-bottom: 20px;
+    font-size: 1rem;
+    color: #673AB7;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.profile-link:hover {
+    color: #512DA8;
+    text-decoration: underline;
+}
+
+/* Разделитель */
+.divider {
+    width: 80%;
+    margin: 20px auto;
+    border-top: 2px dashed #6A1B9A;
 }
 
 /* Темы */
 .topics-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-    gap: 15px;
-    margin: 20px 0;
+    grid-template-columns: repeat(3, 1fr); /* Адаптивная сетка */
+    gap: 20px; /* Отступы между кнопками */
+    justify-content: center; /* Центрирование */
+    margin: 20px 20;
 }
 
+/* Кнопки тем */
 .topic-item {
-    padding: 10px 15px;
-    border: 1px solid #007bff;
+    position: relative;
+    display: inline-block;
+    padding: 10px 15px 10px 50px; /* Отступы для текста и галочки */
+    border: 2px solid #673AB7;
     border-radius: 8px;
-    background-color: #e7f1ff;
-    color: #007bff;
+    background: linear-gradient(to right, #2457E4, #7B3EF4); /* Градиент кнопок */
+    color: white;
     font-weight: bold;
-    text-align: center;
+    text-align: left; /* Текст выровнен влево */
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: all 0.3s ease;
 }
 
+/* Ховер эффект */
 .topic-item:hover {
-    background-color: #cde4ff;
+    background: linear-gradient(to right, #ab47bc, #7e57c2);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Прокрутка тем */
-.topic-container {
-    max-height: 400px;
-    overflow-y: auto;
-    padding: 10px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
+/* Скрываем стандартный чекбокс */
+.topic-item input[type="checkbox"] {
+    display: none; /* Скрываем стандартный чекбокс */
+}
+
+/* Кастомная галочка */
+.topic-item .checkbox {
+    position: absolute;
+    top: 50%;
+    left: 15px;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid #fff;
+    border-radius: 4px;
+    background: transparent;
+    transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+/* Состояние "выбрано" для кастомной галочки */
+.topic-item input[type="checkbox"]:checked + .checkbox {
+    background: #fff; /* Белый фон для галочки */
+    border-color: #fff; /* Цвет рамки вокруг галочки */
+}
+
+/* Убираем конфликтные стили */
+.topic-item .checkbox::after {
+    content: '';
+    display: block;
+    position: absolute;
+    top: 4px;
+    left: 7px;
+    width: 6px;
+    height: 12px;
+    border: solid #673AB7; /* Цвет галочки */
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+    opacity: 0; /* Скрыто по умолчанию */
+    transition: opacity 0.3s ease;
+}
+
+/* Показываем галочку, если чекбокс выбран */
+.topic-item input[type="checkbox"]:checked + .checkbox::after {
+    opacity: 1;
+}
+
+/* Кнопка начала тренировки */
+.start-button {
+    margin-top: 100px;
+    padding: 15px 40px;
+    font-size: 1.5rem;
+    background-color: #673AB7;
+    color: white;
+    border: none;
     border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-/* Карточки */
+.start-button:hover {
+    background-color: #512DA8;
+    transform: translateY(-3px);
+}
+
+/* Карточка */
 .flashcard {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     background-color: #fff;
     border-radius: 12px;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
     padding: 30px;
-    width: 100%;
-    max-width: 400px;
-    margin: 20px 0;
+    width: 250px; /* Фиксированная ширина */
+    height: 400px; /* Фиксированная высота */
+    margin: 20px auto;
+    text-align: center;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -108,423 +296,387 @@ button:hover {
     box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
 }
 
+/* Слова в карточке */
 .flashcard-word {
     font-size: 2rem;
     font-weight: bold;
     color: #007bff;
+    margin-bottom: 10px;
 }
 
 .flashcard-transcription {
     font-size: 1.2rem;
     font-style: italic;
     color: #555;
+    margin-bottom: 10px;
 }
 
 .flashcard-translation {
     font-size: 1.5rem;
     color: #333;
-}
-
-/* Кнопки для карточек */
-.navigation-buttons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 20px;
-}
-
-.nav-button {
-    padding: 10px 20px;
-    font-size: 1rem;
-    background-color: #007bff;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.nav-button:hover {
-    background-color: #0056b3;
-    transform: translateY(-3px);
-}
-
-.flashcard {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: #fff;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    padding: 30px;
-    max-width: 400px;
-    margin: 0 auto;
     margin-bottom: 20px;
-    text-align: center;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.flashcard:hover {
-    transform: scale(1.05);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
-
-.flashcard-word {
-    font-size: 2rem;
-    font-weight: bold;
-    color: #007bff;
-}
-
-.flashcard-transcription {
-    font-size: 1.2rem;
-    font-style: italic;
-    color: #555;
-}
-
-.flashcard-translation {
-    font-size: 1.5rem;
-    color: #333;
-}
-
-.flashcard {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background-color: #fff;
-    border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    padding: 30px;
-    width: 80%;
-    max-width: 400px;
-    margin: 20px auto;
-    transition: transform 0.4s ease, box-shadow 0.4s ease;
-}
-
-.flashcard h2 {
-    font-size: 2rem;
-    color: #007bff;
-}
-
-.flashcard p {
-    font-size: 1.2rem;
-    color: #333;
-    margin: 10px 0;
-}
-
-#next-btn {
-    padding: 10px 20px;
-    font-size: 1rem;
-    background-color: #007bff;
-    border: none;
-    border-radius: 8px;
-    color: white;
-    cursor: pointer;
-    margin-top: 20px;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-#next-btn:hover {
-    background-color: #0056b3;
-    transform: translateY(-3px);
-}
-
-/* Контейнер тренировки */
-.training-container {
-    text-align: center;
-    max-width: 600px;
-    padding: 20px;
-    border-radius: 8px;
-    background-color: #ffffff;
-    color: #333;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin: 20px auto;
-}
-
-/* Стили для карточек */
-.flashcard {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: #fff;
-    border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    padding: 30px;
-    width: 80%;
-    max-width: 400px;
-    margin: 20px auto;
-    transition: transform 0.4s ease, box-shadow 0.4s ease;
-}
-
-.flashcard p {
-    margin: 10px 0;
-}
-
-.flashcard .nav-button {
-    margin-top: 15px;
-}
-
-/* Стиль для поля ввода */
+/* Поля ввода */
 .input-field {
     width: 80%;
     padding: 10px;
     margin: 10px 0;
-    border: 2px solid #ccc;
     border-radius: 5px;
+    border: 2px solid #ccc;
     font-size: 16px;
     outline: none;
     transition: all 0.3s ease;
 }
 
-/* При правильном ответе */
 .input-field.correct {
     border-color: green;
     background-color: #d4edda;
 }
 
-/* При неправильном ответе */
 .input-field.incorrect {
     border-color: red;
     background-color: #f8d7da;
 }
 
-/* Для блока с обратной связью */
+/* Блок с обратной связью */
 .feedback {
     font-size: 16px;
     margin-top: 10px;
     font-weight: bold;
 }
 
-/* Стили для карточек */
-.flashcard {
-    border: 1px solid #ddd;
-    padding: 20px;
-    margin-bottom: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.flashcard-word,
-.flashcard-transcription,
-.flashcard-translation {
-    font-size: 18px;
-    margin-bottom: 10px;
-}
-
-/* Стили для кнопок в карточке с выбором */
+/* Кнопки в карточке */
 #options {
     display: flex;
-    flex-direction: column;  /* Выставляем кнопки в столбик */
-    gap: 10px;
+    flex-direction: column; /* Ставим кнопки столбиком */
+    gap: 10px; /* Отступы между кнопками */
+    width: 100%; /* Растягиваем контейнер на всю ширину карточки */
+    align-items: center; /* Центрируем кнопки */
 }
 
+/* Кнопки в карточке с выбором перевода */
 .option-button {
     padding: 10px;
     font-size: 16px;
+    width: 80%; /* Кнопки растягиваются на 80% ширины */
+    text-align: center;
     cursor: pointer;
-    border: 1px solid #ddd;
+    border: 2px solid #ddd;
     border-radius: 5px;
-    background-color: #f8f9fa;
-    transition: background-color 0.3s ease;
+    background-color: #f8f9fa; /* Светло-серый фон */
+    color: #333; /* Тёмно-серый текст */
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .option-button:hover {
-    background-color: #e2e6ea;
+    background-color: #e2e6ea; /* Чуть темнее при наведении */
+    color: #000; /* Тёмный текст при наведении */
 }
 
-/* Стили для корректного и некорректного ответа */
+/* Корректный выбор */
 .option-button.correct {
-    background-color: #28a745; /* Зеленый для правильного */
-    color: white;
+    background-color: #28a745; /* Зелёный фон для правильного */
+    color: #fff; /* Белый текст */
 }
 
+/* Некорректный выбор */
 .option-button.incorrect {
-    background-color: #dc3545; /* Красный для неправильного */
-    color: white;
+    background-color: #dc3545; /* Красный фон для неправильного */
+    color: #fff; /* Белый текст */
 }
 
-.nav-button {
-    padding: 10px 20px;
-    font-size: 18px;
-    cursor: pointer;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
+/* Кнопки в карточке с вводом слова */
+.flashcard .nav-button {
+    margin: 10px 0; /* Отступ сверху и снизу */
+    width: 80%; /* Кнопки растягиваются на 80% ширины карточки */
 }
 
-.nav-button:hover {
-    background-color: #0056b3;
+<div class="flashcard">
+    <p class="flashcard-translation">Перевод: школа</p>
+    <input type="text" class="input-field" placeholder="Введите слово">
+    <button id="check-button" class="nav-button">Проверить</button>
+    <button id="reveal-button" class="nav-button">Не помню</button>
+</div>
+
+/* Заголовок профиля */
+header {
+    text-align: center;
+    margin: 20px 0;
 }
 
-.feedback {
-    font-size: 16px;
-    margin-top: 10px;
-    font-weight: bold;
-}
-
-/* Стили для карточек */
-.flashcard {
-    border: 1px solid #ddd;
-    padding: 20px;
-    margin-bottom: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.flashcard-word,
-.flashcard-transcription,
-.flashcard-translation {
-    font-size: 18px;
+header h1 {
+    font-size: 2.5rem;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+font-size: 2.5rem.)5);
     margin-bottom: 10px;
 }
 
-/* Стили для кнопок в карточке с выбором */
-#options {
-    display: flex;
-    flex-direction: column;  /* Выставляем кнопки в столбик */
-    gap: 10px;
-}
-
-.option-button {
-    padding: 10px;
-    font-size: 16px;
-    cursor: pointer;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    background-color: #f8f9fa;
-    transition: background-color 0.3s ease;
-}
-
-.option-button:hover {
-    background-color: #e2e6ea;
-}
-
-/* Стили для корректного и некорректного ответа */
-.option-button.correct {
-    background-color: #28a745; /* Зеленый для правильного */
-    color: white;
-}
-
-.option-button.incorrect {
-    background-color: #dc3545; /* Красный для неправильного */
-    color: white;
-}
-
-.nav-button {
-    padding: 10px 20px;
-    font-size: 18px;
-    cursor: pointer;
+header a {
+    text-decoration: none;
+    font-size: 1rem;
+    color: #fff;
     background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 5px;
+    padding: 8px 20px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-.nav-button:hover {
+header a:hover {
     background-color: #0056b3;
+    transform: translateY(-2px);
 }
 
-.feedback {
-    font-size: 16px;
-    margin-top: 10px;
-    font-weight: bold;
-}
-
-
-/* Общие стили для страниц */
-body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f7fa;
+.profile_container .body {
     margin: 0;
-    padding: 0;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, rgba(36, 87, 228, 0.75), rgba(123, 62, 244, 0.75)), url('../images/background.png');
+    background-size: cover;
+    background-position: center;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Высота страницы фиксирована */
+    overflow: hidden; /* Отключаем прокрутку страницы */
+    text-align: center;
+}
+
+/* Контейнер профиля */
+.profile-container {
+    width: 90%;
+    max-width: 800px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    height: 80%; /* Высота контейнера фиксирована */
+    overflow-y: auto; /* Включаем прокрутку внутри контейнера */
+}
+
+/* Заголовок профиля */
+.profile-header {
+    margin-bottom: 20px;
+}
+
+.profile-title {
+    font-size: 2.5rem;
+    margin: 0;
+    color: #673ab7;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Секция статистики */
+.stats-section {
+    width: 100%;
+    flex: 1; /* Занимает доступное пространство */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.stats-section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    color: #673ab7;
+}
+
+/* Прокручиваемый блок */
+.stats-scroll {
+    width: 100%;
+    overflow-y: auto; /* Прокрутка только вертикальная */
+    padding: 10px;
+    border-radius: 12px;
+}
+
+/* Элементы статистики */
+.stats-item {
+    background: linear-gradient(to right, #673ab7, #512da8);
+    padding: 15px;
+    border-radius: 8px;
+    color: white;
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stats-item a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.2rem;
+    display: block;
+}
+
+.stats-item a:hover {
+    color: #ddd;
+}
+
+.stats-item p {
+    margin: 0;
+    font-size: 1rem;
+}
+
+/* Анимация элементов статистики */
+.stats-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Кнопка выхода */
+.logout-button {
+    margin-top: 20px;
+    font-size: 1.2rem;
+    color: white;
+    background-color: #673ab7;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.logout-button:hover {
+    background-color: #512da8;
+    transform: translateY(-3px);
+}
+
+/* Полоса прокрутки */
+.stats-scroll::-webkit-scrollbar {
+    width: 10px;
+}
+
+.stats-scroll::-webkit-scrollbar-thumb {
+    background: rgba(123, 62, 244, 0.8);
+    border-radius: 10px;
+}
+
+.stats-scroll::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* === Страница деталей темы === */
+.topic-details-page {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(135deg, rgba(36, 87, 228, 0.75), rgba(123, 62, 244, 0.75)), url('../images/background.png');
+    background-size: cover;
+    background-position: center;
+    color: #fff;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
+    overflow: hidden;
 }
 
-/* Контейнер для формы */
-.form-container {
-    background-color: #fff;
-    padding: 30px;
+.details-container {
+    width: 90%;
+    max-width: 800px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-y: auto;
+    max-height: 80%; /* Прокрутка только в этом блоке */
+}
+
+/* Заголовок */
+.details-title {
+    font-size: 2.5rem;
+    color: #673ab7;
+    margin-bottom: 10px;
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Кнопка "Назад" */
+.details-back-button {
+    font-size: 1rem;
+    color: white;
+    background-color: #673ab7;
+    text-decoration: none;
+    padding: 10px 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.details-back-button:hover {
+    background-color: #512da8;
+    transform: translateY(-3px);
+}
+
+/* Список слов */
+.details-word-list {
     width: 100%;
-    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    overflow-y: auto; /* Прокрутка только в списке */
+}
+
+/* Элемент списка */
+.details-word-item {
+    background: linear-gradient(to right, #673ab7, #512da8);
+    padding: 15px;
+    border-radius: 8px;
+    color: white;
+    font-size: 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.details-word-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Текст слова */
+.details-word-text {
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+/* Статус слова */
+.details-word-status {
+    background: rgba(0, 0, 0, 0.1);
+    color: white;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    text-transform: capitalize;
     text-align: center;
 }
 
-/* Заголовок формы */
-.form-title {
-    font-size: 24px;
-    margin-bottom: 20px;
-    color: #333;
+/* Полоса прокрутки */
+.details-container::-webkit-scrollbar,
+.details-word-list::-webkit-scrollbar {
+    width: 10px;
 }
 
-/* Стили для формы */
-.form {
-    display: flex;
-    flex-direction: column;
+.details-container::-webkit-scrollbar-thumb,
+.details-word-list::-webkit-scrollbar-thumb {
+    background: rgba(123, 62, 244, 0.8);
+    border-radius: 10px;
 }
 
-/* Параграфы и текст */
-.form-text {
-    margin-top: 15px;
-    font-size: 14px;
-    color: #555;
+.details-container::-webkit-scrollbar-track,
+.details-word-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
 }
 
-/* Стили для ссылок */
-.form-text a {
-    color: #007BFF;
-    text-decoration: none;
-}
 
-.form-text a:hover {
-    text-decoration: underline;
-}
-
-/* Кнопка отправки формы */
-.btn-submit {
-    background-color: #007BFF;
-    color: white;
-    border: none;
-    padding: 12px;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.btn-submit:hover {
-    background-color: #0056b3;
-}
-
-/* Поля формы */
-.form input {
-    padding: 10px;
-    margin: 10px 0;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    font-size: 16px;
-    width: 100%;
-}
-
-.form input:focus {
-    border-color: #007BFF;
-    outline: none;
-}
-
-/* Сообщения об ошибках */
-.errorlist {
-    color: red;
-    font-size: 14px;
-    margin-top: 10px;
-    list-style-type: none;
-    padding: 0;
-}

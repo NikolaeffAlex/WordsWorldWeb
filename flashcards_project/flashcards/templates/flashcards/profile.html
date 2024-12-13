@@ -1,28 +1,38 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Профиль</title>
+    <link rel="stylesheet" href="{% static 'flashcards/css/style.css' %}">
 </head>
 <body>
-    <header>
-        <h1>Профиль пользователя: {{ user.username }}</h1>
-        <a href="{% url 'logout' %}">Выйти</a>
-    </header>
+    <div class="profile-container">
+        <!-- Заголовок -->
+        <header class="profile-header">
+            <h1 class="profile-title">Профиль пользователя: {{ user.username }}</h1>
+        </header>
 
-    <section>
-        <h2>Статистика по темам:</h2>
-        <ul>
-            {% for stat in stats %}
-                <li>
-                    <a href="{% url 'topic_details' stat.topic.id %}">
-                        {{ stat.topic.name }}
-                    </a>
-                    - {{ stat.percentage|floatformat:1 }}% ({{ stat.learned_words }}/{{ stat.total_words }} слов)
-                </li>
-            {% endfor %}
-        </ul>
-    </section>
+        <!-- Статистика -->
+        <section class="stats-section">
+            <h2>Статистика по темам:</h2>
+            <div class="stats-scroll">
+                {% for stat in stats %}
+                <div class="stats-item">
+                    <a href="{% url 'topic_details' stat.topic.id %}">{{ stat.topic.name }}</a>
+                    <p>{{ stat.percentage|floatformat:1 }}% ({{ stat.learned_words }}/{{ stat.total_words }} слов)</p>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <!-- Кнопка выхода -->
+        <footer>
+            <a href="{% url 'logout' %}" class="logout-button">Выйти</a>
+        </footer>
+    </div>
 </body>
 </html>
+
+
