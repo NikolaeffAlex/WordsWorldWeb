@@ -679,4 +679,10 @@ header a:hover {
     background: rgba(0, 0, 0, 0.1);
 }
 
-
+.training-finished {
+    color: #333; /* Черный или любой другой цвет */
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 20px;
+}

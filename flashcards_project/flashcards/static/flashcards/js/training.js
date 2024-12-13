@@ -147,7 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             cardContainer.innerHTML = `
                 <div class="flashcard">
-                    <h2>Тренировка завершена!</h2>
+                    <h2 class="training-finished">Тренировка завершена!</h2>
                     <button class="nav-button" onclick="window.location.href='/topics/'">Вернуться к темам</button>
                 </div>
             `;

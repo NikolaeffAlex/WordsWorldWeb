@@ -247,18 +247,19 @@ class CustomLoginView(LoginView):
 
 @login_required
 def profile(request):
-    # Получаем список тем
+    # Получаем все темы
     topics = Topic.objects.all()
 
-    # Статистика по темам: процент изученных слов
+    # Создаем статистику только для текущего пользователя
     stats = []
     for topic in topics:
-        total_words = Card.objects.filter(topic=topic).count()
-        learned_words = Card.objects.filter(topic=topic, usercardprogress__status="learned").count()
-        if total_words > 0:
-            percentage = (learned_words / total_words) * 100
-        else:
-            percentage = 0
+        total_words = topic.cards.count()
+        learned_words = UserCardProgress.objects.filter(
+            user=request.user,  # Фильтруем только по текущему пользователю
+            card__topic=topic,
+            status="learned"
+        ).count()
+        percentage = (learned_words / total_words) * 100 if total_words > 0 else 0
         stats.append({
             'topic': topic,
             'total_words': total_words,
@@ -266,7 +267,7 @@ def profile(request):
             'percentage': percentage
         })
 
-    return render(request, 'flashcards/profile.html', {'stats': stats})
+    return render(request, 'flashcards/profile.html', {'stats': stats, 'user': request.user})
 
 
 @login_required
